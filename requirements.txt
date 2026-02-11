@@ -1,0 +1,6 @@
+pixivpy3
+requests
+selenium
+webdriver-manager
+customtkinter
+packaging
