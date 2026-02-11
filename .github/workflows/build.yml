@@ -1,0 +1,39 @@
+name: Build Windows EXE
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pyinstaller
+
+      - name: Build with PyInstaller
+        # 修改重點：不使用 spec 檔，而是直接下指令打包
+        # --collect-all customtkinter：自動抓取該函式庫所需的所有檔案
+        # --add-data "style.css;."：將樣式表一起打包 (注意 Windows 使用分號 ;)
+        # --noconfirm --clean：清除舊快取，強制重建
+        run: |
+          pyinstaller --name PixivSorter --onefile --windowed --clean --noconfirm --add-data "style.css;." --collect-all customtkinter gui.py
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: PixivSorter-Windows-EXE
+          path: dist/*.exe
+          retention-days: 5
